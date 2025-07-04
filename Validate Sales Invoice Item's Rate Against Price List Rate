@@ -1,0 +1,18 @@
+if doc.items:
+    rate_exceeded_items = []
+
+    for item in doc.items:
+        if item.price_list_rate and item.rate > item.price_list_rate:
+            rate_exceeded_items.append(
+                f"<b>{item.item_name}</b> (Row #{item.idx}) - Rate: {item.rate}, Price List Rate: {item.price_list_rate}"
+            )
+
+    if rate_exceeded_items:
+        error_message = (
+            "<p>Cannot Save Sales Invoice! The following items have a Rate greater than the Price List Rate:</p>"
+            "<ul>"
+            + "".join(f"<li>{item}</li>" for item in rate_exceeded_items) +
+            "</ul>"
+            "<p>Please correct these rates before saving the Sales Invoice.</p>"
+        )
+        frappe.throw(error_message, title="Rate Validation Error")

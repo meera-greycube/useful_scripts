@@ -1,0 +1,35 @@
+frappe.ui.form.on('Employee', {
+    refresh: function (frm) {
+        if (!frm.doc.__islocal) {
+            frm.add_custom_button(__('View Ledger'), function () {
+                if (!frm.doc.date_of_joining) {
+                    frappe.msgprint(__('Please set Date of Joining before viewing the ledger.'));
+                    return;
+                }
+
+                const route_options = {
+                    company: frm.doc.company,
+                    from_date: frm.doc.date_of_joining,
+                    to_date: frappe.datetime.get_today(),
+                    party_type: 'Employee',
+                    party: frm.doc.name
+                };
+
+                const base_url = window.location.origin;
+                const params = new URLSearchParams(route_options).toString();
+                const report_url = `${base_url}/app/query-report/General%20Ledger?${params}`;
+
+                window.open(report_url, '_blank');
+            });
+
+            setTimeout(() => {
+                const $btn = $(`.btn:contains("View Ledger")`);
+                $btn.css({
+                    'background-color': '#438DEA',
+                    'color': '#fff',
+                    'border-color': '#438DEA'
+                });
+            }, 100);
+        }
+    }
+});

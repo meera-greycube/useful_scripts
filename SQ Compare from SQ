@@ -1,0 +1,40 @@
+frappe.ui.form.on('Supplier Quotation', {
+    refresh: function(frm) {
+        let btn = frm.add_custom_button('SQ Compare', function() {
+            let rfq_list = [];
+            for (let i = 0; i < frm.doc.items.length; i++) {
+                let rfq = frm.doc.items[i].request_for_quotation;
+                if (rfq && rfq_list.indexOf(rfq) === -1) {
+                    rfq_list.push(rfq);
+                }
+            }
+
+            if (rfq_list.length === 1) {
+                let rfq = rfq_list[0];
+                let to_date = frappe.datetime.nowdate();
+
+                frappe.db.get_value('Request for Quotation', rfq, 'transaction_date')
+                    .then(r => {
+                        let from_date = r.message.transaction_date;
+
+                        let url = "/app/query-report/Supplier Quotation Comparison"
+                            + "?company=" + encodeURIComponent(frm.doc.company)
+                            + "&from_date=" + encodeURIComponent(from_date)
+                            + "&to_date=" + encodeURIComponent(to_date)
+                            + "&categorize_by=" + encodeURIComponent("Categorize by Supplier")
+                            + "&request_for_quotation=" + encodeURIComponent(rfq);
+
+                        window.open(url, '_blank');
+                    });
+            } else {
+                frappe.msgprint("SQ Items must have only one unique RFQ to view comparison.");
+            }
+        });
+
+        if (btn && btn[0]) {
+            btn[0].style.backgroundColor = '#438DEA';
+            btn[0].style.color = '#fff';
+            btn[0].style.border = '1px solid #438DEA';
+        }
+    }
+});

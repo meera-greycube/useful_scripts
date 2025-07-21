@@ -1,0 +1,17 @@
+for item in doc.items:
+    if item.custom_rate_wo_gst and item.custom_gst_per:
+        calculated_rate = item.custom_rate_wo_gst + (item.custom_rate_wo_gst * item.custom_gst_per) / 100
+
+        item.rate = calculated_rate
+        item.price_list_rate = calculated_rate
+        item.net_rate = calculated_rate
+
+        item.amount = calculated_rate * item.qty
+        item.net_amount = item.amount
+
+        item.base_rate = calculated_rate
+        item.base_price_list_rate = calculated_rate
+        item.base_net_rate = calculated_rate
+
+        item.base_amount = item.amount
+        item.base_net_amount = item.amount

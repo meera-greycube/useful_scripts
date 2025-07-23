@@ -1,0 +1,23 @@
+for item in doc.items:
+    if not item.custom_asset_serial_no:
+        continue
+
+    serial_nos = [s.strip() for s in item.custom_asset_serial_no.strip().split("\n") if s.strip()]
+
+    assets = frappe.get_all("Asset", filters={
+        "purchase_receipt": doc.name,
+        "purchase_receipt_item": item.name,
+        "item_code": item.item_code
+    }, order_by="creation asc", fields=["name"])
+
+    if len(assets) != item.qty:
+        frappe.msgprint(f"Warning: {len(assets)} assets found, but {item.qty} expected for item {item.item_code}")
+        continue
+
+    for idx, asset_row in enumerate(assets):
+        asset_doc = frappe.get_doc("Asset", asset_row.name)
+        asset_doc.custom_serial_no = serial_nos[idx]
+        if not asset_doc.available_for_use_date:
+            asset_doc.available_for_use_date = frappe.utils.nowdate()
+        if asset_doc.docstatus == 0:
+            asset_doc.save()
